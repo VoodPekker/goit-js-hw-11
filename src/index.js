@@ -41,11 +41,11 @@ const loadMorePhotos = async function (entries, observer) {
       try {
         spinnerPlay();
 
-        const { hits } = await pixaby.getPhotos();
+        const { hits, totalHits } = await pixaby.getPhotos();
         const markup = createMarkup(hits);
         refs.gallery.insertAdjacentHTML('beforeend', markup);
 
-        if (pixaby.hasMorePhotos) {
+        if (!(refs.gallery.children.length >= totalHits)) {
           const lastItem = document.querySelector('.gallery a:last-child');
           observer.observe(lastItem);
         } else
