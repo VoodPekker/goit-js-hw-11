@@ -31,39 +31,41 @@ const options = {
 };
 
 const loadMorePhotos = async function (entries, observer) {
-  entries.forEach(async entry => {
-    if (entry.isIntersecting) {
-      observer.unobserve(entry.target);
-      pixaby.incrementPage();
+  if (refs.gallery.children.length >= 40) {
+    entries.forEach(async entry => {
+      if (entry.isIntersecting) {
+        observer.unobserve(entry.target);
+        pixaby.incrementPage();
 
-      spinnerPlay();
-
-      try {
         spinnerPlay();
 
-        const { hits, totalHits } = await pixaby.getPhotos();
-        const markup = createMarkup(hits);
-        refs.gallery.insertAdjacentHTML('beforeend', markup);
+        try {
+          spinnerPlay();
 
-        if (!(refs.gallery.children.length >= totalHits)) {
-          const lastItem = document.querySelector('.gallery a:last-child');
-          observer.observe(lastItem);
-        } else
-          Notify.info(
-            "We're sorry, but you've reached the end of search results.",
-            notifyInit
-          );
+          const { hits, totalHits } = await pixaby.getPhotos();
+          const markup = createMarkup(hits);
+          refs.gallery.insertAdjacentHTML('beforeend', markup);
 
-        modalLightboxGallery.refresh();
-        scrollPage();
-      } catch (error) {
-        Notify.failure(error.message, 'Something went wrong!', notifyInit);
-        clearPage();
-      } finally {
-        spinnerStop();
+          if (!(refs.gallery.children.length >= totalHits)) {
+            const lastItem = document.querySelector('.gallery a:last-child');
+            observer.observe(lastItem);
+          } else
+            Notify.info(
+              "We're sorry, but you've reached the end of search results.",
+              notifyInit
+            );
+
+          modalLightboxGallery.refresh();
+          scrollPage();
+        } catch (error) {
+          Notify.failure(error.message, 'Something went wrong!', notifyInit);
+          clearPage();
+        } finally {
+          spinnerStop();
+        }
       }
-    }
-  });
+    });
+  }
 };
 
 const observer = new IntersectionObserver(loadMorePhotos, options);
